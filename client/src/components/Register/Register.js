@@ -22,6 +22,25 @@ class Register extends React.Component {
     this.setState({password: event.target.value})
   }
 
+  onSubmitSignIn = () => {
+    fetch('http://localhost:3000/register', {
+      method:'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: this.state.email,
+        password: this.state.password,
+        name: this.state.name
+      })
+    })
+    .then (response => response.json())
+    .then (user => {
+      if(user){
+        this.props.loadUser(user);
+        this.props.onRouteChange('home');
+      }
+    })
+  }
+
   render() {
     return (
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">

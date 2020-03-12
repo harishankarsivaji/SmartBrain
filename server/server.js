@@ -7,6 +7,8 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
 
 const app =express();
 
@@ -16,8 +18,16 @@ const database = {
             id: '123',
             name: 'Harish',
             email: 'harish@gmail.com',
+            password: 'apples',
             entries: 0,
             joined: new Date()
+        },
+        {
+          id: '124',
+          name: 'John',
+          email: 'john@gmail.com',
+          entries: 0,
+          joined: new Date()
         }
     ],
     login:[
@@ -30,6 +40,7 @@ const database = {
   }  
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', (req,res) => {
     res.send(database.users);
@@ -38,7 +49,7 @@ app.get('/', (req,res) => {
 app.post('/signin', (req, res) => {
     // res.json("signing in")
     if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
-      res.json('signed in');
+      res.json(database.users[0]);
     } else {
       res.status(400).json('access denied');
     }
@@ -46,11 +57,20 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
     const {name, email, password} = req.body;
+
+    bcrypt.hash(password, null, null, function(err, hash) {
+        // Store hash in your password DB.
+        console.log(hash);
+    });
+
+    bcrypt.compare("apples", '$2a$10$WqYi.Lo4tXB1AzTpbNZ3OuHp2VGwtr5k0pc9pGvPXUaZKxwlz24Z6' , function(req, res) {
+      console.log('first guess', res)
+    })
+
     database.users.push({
       id: '125',
       name: name,
       email: email,
-      password: password,
       entries: 0,
       joined: new Date()
     })
