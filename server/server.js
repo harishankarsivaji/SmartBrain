@@ -9,6 +9,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const db = require('knex')({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    user : 'harishankarsivaji',
+    password : '',
+    database : 'smart-brain'
+  }
+});
+
+db.select('*').from('users');
 
 const app =express();
 
@@ -58,23 +69,28 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
     const {name, email, password} = req.body;
 
-    bcrypt.hash(password, null, null, function(err, hash) {
-        // Store hash in your password DB.
-        console.log(hash);
-    });
+    // bcrypt.hash(password, null, null, function(err, hash) {
+    //     // Store hash in your password DB.
+    //     console.log(hash);
+    // });
 
-    bcrypt.compare("apples", '$2a$10$WqYi.Lo4tXB1AzTpbNZ3OuHp2VGwtr5k0pc9pGvPXUaZKxwlz24Z6' , function(req, res) {
-      console.log('first guess', res)
-    })
+    // bcrypt.compare("apples", '$2a$10$WqYi.Lo4tXB1AzTpbNZ3OuHp2VGwtr5k0pc9pGvPXUaZKxwlz24Z6' , function(req, res) {
+    //   console.log('first guess', res)
+    // })
 
-    database.users.push({
-      id: '125',
+    db('users')
+    .returning('*')
+    .insert({
       name: name,
       email: email,
-      entries: 0,
       joined: new Date()
     })
-    res.json(database.users[database.users.length - 1])
+      .then(user => {
+        res.json(user[0])
+      } )
+      .catch(err => {
+        res.status(400).json(err)
+      })
 })
 
 app.get('/profile/:id', (req, res) => {
